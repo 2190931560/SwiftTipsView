@@ -91,10 +91,17 @@ class TipsView: UIView {
                 borderWidth = v
             }
         }
-        setNeedsLayout()
+        updateUI()
     }
     
-    private func updateBackground() {
+    func updateUI() {
+        drawBackground()
+    }
+}
+
+
+fileprivate extension TipsView {
+    func drawBackground() {
         shapeLayer.frame = self.bounds
         arrowCorner = max(arrowCorner, 0.1)
 
@@ -247,14 +254,6 @@ class TipsView: UIView {
         shapeLayer.strokeColor = borderColor.cgColor
     }
     
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        updateBackground()
-    }
-}
-
-
-fileprivate extension TipsView {
     func drawFrameLeft(path: UIBezierPath, rect: CGRect) {
         path.addArc(
             withCenter: CGPoint(x: rect.minX+cornerRadius, y: rect.maxY-cornerRadius),
@@ -301,18 +300,18 @@ fileprivate extension TipsView {
 class TextTipsView: TipsView {
     private let label = UILabel(frame: .zero)
     var contentInset = UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10) {
-        didSet { setNeedsLayout() }
+        didSet { updateUI() }
     }
     var textMaxWidth: CGFloat = .greatestFiniteMagnitude {
-        didSet { setNeedsLayout() }
+        didSet { updateUI() }
     }
     var font: UIFont? {
         get { label.font }
-        set { label.font = newValue; setNeedsLayout() }
+        set { label.font = newValue; updateUI() }
     }
     var text: String? {
         get { label.text }
-        set { label.text = newValue; setNeedsLayout() }
+        set { label.text = newValue; updateUI() }
     }
     var textColor: UIColor? {
         get { label.textColor }
@@ -329,13 +328,20 @@ class TextTipsView: TipsView {
         label.font = UIFont.systemFont(ofSize: 12)
         label.numberOfLines = 0
         label.textColor = .black
+        updateUI()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func layoutSubviews() {
+    override func updateUI() {
+        sizeToFit()
+        super.updateUI()
+        invalidateIntrinsicContentSize()
+    }
+    
+    override func sizeToFit() {
         let lsize = label.sizeThatFits(CGSize(width: textMaxWidth, height: CGFloat.greatestFiniteMagnitude))
         label.frame.size = lsize
         var vsize = CGSize(width: lsize.width + contentInset.left + contentInset.right, height: lsize.height + contentInset.top + contentInset.bottom)
@@ -353,10 +359,8 @@ class TextTipsView: TipsView {
             vsize.width += arrowHeight
             label.frame.origin = CGPoint(x: contentInset.left, y: contentInset.top)
         }
+        //print(vsize)
         self.frame.size = vsize
-        
-        super.layoutSubviews()
-        invalidateIntrinsicContentSize()
     }
     
     override var intrinsicContentSize: CGSize { frame.size }
