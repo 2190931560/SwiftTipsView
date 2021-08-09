@@ -41,8 +41,8 @@ class TipsView: UIView {
     //尖头的宽高 高就是按尖头指向的方向 宽是等腰三角形的宽
     fileprivate var arrowWidth: CGFloat = 10
     fileprivate var arrowHeight: CGFloat = 5
-    private var arrowCorner: CGFloat = 3
-    fileprivate var arrowDirection: TipsViewOption.Direction = .top
+    private var arrowCorner: CGFloat = 0
+    fileprivate var arrowDirection: TipsViewOption.Direction = .bottom
     private var arrowPadding: TipsViewOption.Padding = .center
     
     private var fillColor: UIColor = .white
@@ -95,6 +95,11 @@ class TipsView: UIView {
     }
     
     func updateUI() {
+        setNeedsLayout()
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
         drawBackground()
     }
 }
@@ -325,9 +330,9 @@ class TextTipsView: TipsView {
     override init(frame: CGRect, opts: [TipsViewOption]?) {
         super.init(frame: frame, opts: opts)
         addSubview(label)
-        label.font = UIFont.systemFont(ofSize: 12)
+        label.font = UIFont.systemFont(ofSize: 14)
         label.numberOfLines = 0
-        label.textColor = .black
+        label.textColor = .white
         updateUI()
     }
     
@@ -359,7 +364,6 @@ class TextTipsView: TipsView {
             vsize.width += arrowHeight
             label.frame.origin = CGPoint(x: contentInset.left, y: contentInset.top)
         }
-        //print(vsize)
         self.frame.size = vsize
     }
     
